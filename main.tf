@@ -1,13 +1,28 @@
+#providers for terraform, aws because aws, random for random bucket name 
+terraform {
+  required_providers {
+    aws = {
+      source = "hashicorp/aws"
+    }
+    random = {
+      source = "hashicorp/random"
+    }
+  }
+}
 #default region of sandbox
 provider "aws" {
   region = var.region
 }
+
+resource "random_id" "bucket_id" {
+  byte_length = 4
+}
 #creation of bucket (Unique name)
 #tags to see costs, id what is what
 resource "aws_s3_bucket" "my_bucket" {
-  bucket = var.bucket_name
+  bucket = "kei-${random_id.bucket_id.hex}"
   tags = {
-    Name        = var.bucket_name
+    Name        = "kei-${random_id.bucket_id.hex}"
     Environment = var.environment
     Owner       = var.owner
 }
@@ -41,6 +56,7 @@ resource "aws_s3_bucket_public_access_block" "block_public" {
 }
 #lifecycle rule, needed because of versioning
 resource "aws_s3_bucket_lifecycle_configuration" "lifecycle" {
+  count  = var.enable_lifecycle ? 1 : 0
   bucket = aws_s3_bucket.my_bucket.id
 
   rule {
@@ -52,7 +68,7 @@ resource "aws_s3_bucket_lifecycle_configuration" "lifecycle" {
     }
 
     noncurrent_version_expiration {
-      noncurrent_days = 30
+      noncurrent_days = var.noncurrent_days
     }
   }
 }
