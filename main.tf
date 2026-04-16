@@ -72,3 +72,10 @@ resource "aws_s3_bucket_lifecycle_configuration" "lifecycle" {
     }
   }
 }
+#prevents terraform destroy from deleting bucket
+resource "aws_s3_bucket" "my_bucket" {
+  bucket = "kei-${random_id.bucket_id.hex}"
+  lifecycle {
+    prevent_destroy = true
+  }
+}
