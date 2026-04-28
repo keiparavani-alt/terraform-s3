@@ -46,3 +46,16 @@ variable "enable_versioning" {
   type        = bool
   default     = true
 }
+
+
+#decides encryption type, default is AES256
+variable "encryption_type" {
+  description = "S3 encryption type. Use AES256 for SSE-S3 or aws:kms for SSE-KMS."
+  type        = string
+  default     = "AES256"
+
+  validation {
+    condition     = contains(["AES256", "aws:kms"], var.encryption_type)
+    error_message = "encryption_type must be either AES256 or aws:kms."
+  }
+}

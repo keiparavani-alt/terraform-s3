@@ -1,19 +1,3 @@
-#providers for terraform, aws because aws, random for random bucket name 
-terraform {
-  required_providers {
-    aws = {
-      source = "hashicorp/aws"
-    }
-    random = {
-      source = "hashicorp/random"
-    }
-  }
-}
-#default region of sandbox
-provider "aws" {
-  region = var.region
-}
-
 resource "random_id" "bucket_id" {
   byte_length = 4
 }
@@ -28,7 +12,7 @@ resource "aws_s3_bucket" "my_bucket" {
     Name        = var.bucket_name != "" ? var.bucket_name : "kei-${random_id.bucket_id.hex}"
     Environment = var.environment
     Owner       = var.owner
-    
+
   }
 
   lifecycle {
@@ -44,13 +28,13 @@ resource "aws_s3_bucket_versioning" "versioning" {
     status = "Enabled"
   }
 }
-#encryption, using AWS-managed encryption (SSE-S3)
+#encryption, using variable default is AES256
 resource "aws_s3_bucket_server_side_encryption_configuration" "encryption" {
   bucket = aws_s3_bucket.my_bucket.id
 
   rule {
     apply_server_side_encryption_by_default {
-      sse_algorithm = "AES256"
+      sse_algorithm = var.encryption_type
     }
   }
 }
