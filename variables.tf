@@ -58,3 +58,27 @@ variable "encryption_type" {
     error_message = "encryption_type must be either AES256 or aws:kms."
   }
 }
+#different storage options based on the age of the docs
+variable "enable_storage_transitions" {
+  description = "Enable lifecycle transitions to cheaper storage classes"
+  type        = bool
+  default     = true
+}
+
+variable "transition_to_ia_days" {
+  description = "Days before moving objects to Standard-IA"
+  type        = number
+  default     = 30
+}
+
+variable "transition_to_glacier_days" {
+  description = "Days before moving objects to Glacier Instant Retrieval"
+  type        = number
+  default     = 90
+}
+
+variable "transition_to_deep_archive_days" {
+  description = "Days before moving objects to Deep Archive"
+  type        = number
+  default     = 180
+}

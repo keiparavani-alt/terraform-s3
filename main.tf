@@ -1,18 +1,21 @@
-resource "random_id" "bucket_id" {
-  byte_length = 4
+locals {
+  bucket_suffix     = formatdate("YYYYMMDD-hhmmss", timestamp())
+  final_bucket_name = var.bucket_name != "" ? "${var.bucket_name}-${local.bucket_suffix}" : "kei-${local.bucket_suffix}"
 }
+
 #creation of bucket (Unique name)
 #tags to see costs, id what is what
 resource "aws_s3_bucket" "my_bucket" {
   #if user provides a name use it
   #otherwise, random id
-  bucket = var.bucket_name != "" ? var.bucket_name : "kei-${random_id.bucket_id.hex}"
+  #now it doesnt use random id uses date adn time it was created
+  bucket = local.final_bucket_name
+
 
   tags = merge(
     var.tags,
     {
-      Name = var.bucket_name != "" ? var.bucket_name : "kei-${random_id.bucket_id.hex}"
-    }
+    Name = local.final_bucket_name }
   )
 
   lifecycle {
@@ -47,17 +50,41 @@ resource "aws_s3_bucket_public_access_block" "block_public" {
   ignore_public_acls      = true
   restrict_public_buckets = true
 }
-#lifecycle rule, needed because of versioning
+#lifecycle rule, needed because of versioning, different age for different docs, default true
 resource "aws_s3_bucket_lifecycle_configuration" "lifecycle" {
   count  = var.enable_lifecycle ? 1 : 0
   bucket = aws_s3_bucket.my_bucket.id
 
   rule {
-    id     = "cleanup-old-versions"
+    id     = "storage-transitions-and-cleanup"
     status = "Enabled"
 
     filter {
       prefix = ""
+    }
+
+    dynamic "transition" {
+      for_each = var.enable_storage_transitions ? [1] : []
+      content {
+        days          = var.transition_to_ia_days
+        storage_class = "STANDARD_IA"
+      }
+    }
+
+    dynamic "transition" {
+      for_each = var.enable_storage_transitions ? [1] : []
+      content {
+        days          = var.transition_to_glacier_days
+        storage_class = "GLACIER"
+      }
+    }
+
+    dynamic "transition" {
+      for_each = var.enable_storage_transitions ? [1] : []
+      content {
+        days          = var.transition_to_deep_archive_days
+        storage_class = "DEEP_ARCHIVE"
+      }
     }
 
     noncurrent_version_expiration {
