@@ -18,9 +18,7 @@ resource "aws_s3_bucket" "my_bucket" {
     Name = local.final_bucket_name }
   )
 
-  lifecycle {
-    prevent_destroy = true
-  }
+
 }
 #versioning, useful for saving data, accidental deletes
 resource "aws_s3_bucket_versioning" "versioning" {
