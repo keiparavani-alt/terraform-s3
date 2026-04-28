@@ -7,17 +7,16 @@ variable "region" {
   default     = "us-east-1"
 }
 
-#tag for the enviroment (optional)
-variable "environment" {
-  description = "Environment name"
-  type        = string
-  default     = "dev"
-}
-#tag for the owner (optional)
-variable "owner" {
-  description = "Owner of the resource"
-  type        = string
-  default     = "Kei"
+#tag for the enviroment (optional), have been updated to use map
+variable "tags" {
+  description = "Tags to apply to resources"
+  type        = map(string)
+
+  default = {
+    Environment = "dev"
+    Owner       = "Kei"
+    Project     = "s3-terraform-lab"
+  }
 }
 #variable for the lifecycle(default is its turned on)
 variable "enable_lifecycle" {

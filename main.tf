@@ -8,12 +8,12 @@ resource "aws_s3_bucket" "my_bucket" {
   #otherwise, random id
   bucket = var.bucket_name != "" ? var.bucket_name : "kei-${random_id.bucket_id.hex}"
 
-  tags = {
-    Name        = var.bucket_name != "" ? var.bucket_name : "kei-${random_id.bucket_id.hex}"
-    Environment = var.environment
-    Owner       = var.owner
-
-  }
+  tags = merge(
+    var.tags,
+    {
+      Name = var.bucket_name != "" ? var.bucket_name : "kei-${random_id.bucket_id.hex}"
+    }
+  )
 
   lifecycle {
     prevent_destroy = true
