@@ -20,22 +20,31 @@ resource "random_id" "bucket_id" {
 #creation of bucket (Unique name)
 #tags to see costs, id what is what
 resource "aws_s3_bucket" "my_bucket" {
-  bucket = "kei-${random_id.bucket_id.hex}"
+  #if user provides a name use it
+  #otherwise, random id
+  bucket = var.bucket_name != "" ? var.bucket_name : "kei-${random_id.bucket_id.hex}"
+
   tags = {
-    Name        = "kei-${random_id.bucket_id.hex}"
+    Name        = var.bucket_name != "" ? var.bucket_name : "kei-${random_id.bucket_id.hex}"
     Environment = var.environment
     Owner       = var.owner
-}
+    
+  }
+
+  lifecycle {
+    prevent_destroy = true
+  }
 }
 #versioning, useful for saving data, accidental deletes
 resource "aws_s3_bucket_versioning" "versioning" {
+  count  = var.enable_versioning ? 1 : 0
   bucket = aws_s3_bucket.my_bucket.id
 
   versioning_configuration {
     status = "Enabled"
   }
 }
-#encryption, Use AWS-managed encryption (SSE-S3)
+#encryption, using AWS-managed encryption (SSE-S3)
 resource "aws_s3_bucket_server_side_encryption_configuration" "encryption" {
   bucket = aws_s3_bucket.my_bucket.id
 
@@ -70,12 +79,5 @@ resource "aws_s3_bucket_lifecycle_configuration" "lifecycle" {
     noncurrent_version_expiration {
       noncurrent_days = var.noncurrent_days
     }
-  }
-}
-#prevents terraform destroy from deleting bucket
-resource "aws_s3_bucket" "my_bucket" {
-  bucket = "kei-${random_id.bucket_id.hex}"
-  lifecycle {
-    prevent_destroy = true
   }
 }

@@ -31,3 +31,18 @@ variable "noncurrent_days" {
   type        = number
   default     = 30
 }
+
+#optional custom bucket name
+#leave empty ("") to use auto-generated name
+variable "bucket_name" {
+  description = "Custom S3 bucket name (optional). If empty, a random name will be used."
+  type        = string
+  default     = ""
+}
+
+#variable for making versioning optional 
+variable "enable_versioning" {
+  description = "Enable S3 bucket versioning"
+  type        = bool
+  default     = true
+}
