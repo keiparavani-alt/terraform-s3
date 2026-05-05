@@ -62,31 +62,155 @@ resource "aws_s3_bucket_lifecycle_configuration" "lifecycle" {
     }
 
     dynamic "transition" {
-      for_each = var.enable_storage_transitions ? [1] : []
-      content {
-        days          = var.transition_to_ia_days
-        storage_class = "STANDARD_IA"
-      }
-    }
+  for_each = var.enable_transition_to_ia ? [1] : []
+  content {
+    days          = var.transition_to_ia_days
+    storage_class = "STANDARD_IA"
+  }
+}
 
-    dynamic "transition" {
-      for_each = var.enable_storage_transitions ? [1] : []
-      content {
-        days          = var.transition_to_glacier_days
-        storage_class = "GLACIER"
-      }
-    }
+dynamic "transition" {
+  for_each = var.enable_transition_to_glacier ? [1] : []
+  content {
+    days          = var.transition_to_glacier_days
+    storage_class = "GLACIER"
+  }
+}
 
-    dynamic "transition" {
-      for_each = var.enable_storage_transitions ? [1] : []
-      content {
-        days          = var.transition_to_deep_archive_days
-        storage_class = "DEEP_ARCHIVE"
-      }
-    }
+dynamic "transition" {
+  for_each = var.enable_transition_to_deep_archive ? [1] : []
+  content {
+    days          = var.transition_to_deep_archive_days
+    storage_class = "DEEP_ARCHIVE"
+  }
+}
+  }
+}
+#variable for bucket policy
+resource "aws_s3_bucket_policy" "bucket_policy" {
+  count  = var.enable_bucket_policy ? 1 : 0
+  bucket = aws_s3_bucket.my_bucket.id
+  policy = data.aws_iam_policy_document.bucket_policy.json
 
-    noncurrent_version_expiration {
-      noncurrent_days = var.noncurrent_days
+  depends_on = [
+    aws_s3_bucket_public_access_block.block_public
+  ]
+}
+
+data "aws_iam_policy_document" "bucket_policy" {
+
+  # READ
+  dynamic "statement" {
+    for_each = length(var.read_principals) > 0 ? [1] : []
+
+    content {
+      sid    = "ReadAccess"
+      effect = "Allow"
+
+      principals {
+        type        = "AWS"
+        identifiers = var.read_principals
+      }
+
+      actions = [
+        "s3:ListBucket"
+      ]
+
+      resources = [
+        aws_s3_bucket.my_bucket.arn
+      ]
+    }
+  }
+
+  dynamic "statement" {
+    for_each = length(var.read_principals) > 0 ? [1] : []
+
+    content {
+      sid    = "ReadObjects"
+      effect = "Allow"
+
+      principals {
+        type        = "AWS"
+        identifiers = var.read_principals
+      }
+
+      actions = [
+        "s3:GetObject"
+      ]
+
+      resources = [
+        "${aws_s3_bucket.my_bucket.arn}/*"
+      ]
+    }
+  }
+
+  # WRITE
+  dynamic "statement" {
+    for_each = length(var.write_principals) > 0 ? [1] : []
+
+    content {
+      sid    = "WriteAccess"
+      effect = "Allow"
+
+      principals {
+        type        = "AWS"
+        identifiers = var.write_principals
+      }
+
+      actions = [
+        "s3:PutObject"
+      ]
+
+      resources = [
+        "${aws_s3_bucket.my_bucket.arn}/*"
+      ]
+    }
+  }
+
+  # DELETE
+  dynamic "statement" {
+    for_each = length(var.delete_principals) > 0 ? [1] : []
+
+    content {
+      sid    = "DeleteAccess"
+      effect = "Allow"
+
+      principals {
+        type        = "AWS"
+        identifiers = var.delete_principals
+      }
+
+      actions = [
+        "s3:DeleteObject"
+      ]
+
+      resources = [
+        "${aws_s3_bucket.my_bucket.arn}/*"
+      ]
+    }
+  }
+
+  # ADMIN
+  dynamic "statement" {
+    for_each = length(var.admin_principals) > 0 ? [1] : []
+
+    content {
+      sid    = "AdminAccess"
+      effect = "Allow"
+
+      principals {
+        type        = "AWS"
+        identifiers = var.admin_principals
+      }
+
+      actions = [
+        "s3:*"
+      ]
+
+      resources = [
+        aws_s3_bucket.my_bucket.arn,
+        "${aws_s3_bucket.my_bucket.arn}/*"
+      ]
     }
   }
 }

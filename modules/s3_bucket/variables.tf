@@ -22,9 +22,7 @@ variable "noncurrent_days" {
   type = number
 }
 
-variable "enable_storage_transitions" {
-  type = bool
-}
+
 
 variable "transition_to_ia_days" {
   type = number
@@ -36,4 +34,44 @@ variable "transition_to_glacier_days" {
 
 variable "transition_to_deep_archive_days" {
   type = number
+}
+
+variable "enable_bucket_policy" {
+  type    = bool
+  default = true
+}
+
+variable "read_principals" {
+  type    = list(string)
+  default = []
+}
+
+variable "write_principals" {
+  type    = list(string)
+  default = []
+}
+
+variable "delete_principals" {
+  type    = list(string)
+  default = []
+}
+
+variable "admin_principals" {
+  type    = list(string)
+  default = []
+}
+
+variable "enable_transition_to_ia" {
+  type    = bool
+  default = true
+}
+
+variable "enable_transition_to_glacier" {
+  type    = bool
+  default = true
+}
+
+variable "enable_transition_to_deep_archive" {
+  type    = bool
+  default = true
 }

@@ -18,7 +18,7 @@ variable "tags" {
     Project     = "s3-terraform-lab"
   }
 }
-#variable for the lifecycle(default is its turned on)
+#variable for the lifecycle(default is its turned off)
 variable "enable_lifecycle" {
   description = "Enable lifecycle rule for old object versions"
   type        = bool
@@ -58,12 +58,8 @@ variable "encryption_type" {
     error_message = "encryption_type must be either AES256 or aws:kms."
   }
 }
-#different storage options based on the age of the docs
-variable "enable_storage_transitions" {
-  description = "Enable lifecycle transitions to cheaper storage classes"
-  type        = bool
-  default     = true
-}
+#different storage options based on the age of the docs each type of transition is now optional, each has its own variable
+
 
 variable "transition_to_ia_days" {
   description = "Days before moving objects to Standard-IA"
@@ -81,4 +77,45 @@ variable "transition_to_deep_archive_days" {
   description = "Days before moving objects to Deep Archive"
   type        = number
   default     = 180
+}
+variable "enable_transition_to_ia" {
+  type    = bool
+  default = true
+}
+
+variable "enable_transition_to_glacier" {
+  type    = bool
+  default = true
+}
+
+variable "enable_transition_to_deep_archive" {
+  type    = bool
+  default = true
+}
+
+#variables for bucket policies
+variable "read_principals" {
+  type    = list(string)
+  default = []
+}
+
+variable "write_principals" {
+  type    = list(string)
+  default = []
+}
+
+variable "delete_principals" {
+  type    = list(string)
+  default = []
+}
+
+
+
+
+#variable for admin principals needed for the other principals
+variable "admin_principals" {
+  type = list(string)
+  default = [
+    "arn:aws:iam::069729019498:root"
+  ]
 }
