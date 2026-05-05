@@ -22,7 +22,7 @@ variable "tags" {
 variable "enable_lifecycle" {
   description = "Enable lifecycle rule for old object versions"
   type        = bool
-  default     = true
+  default     = false
 }
 #variable for the days of the lifecycle
 variable "noncurrent_days" {
