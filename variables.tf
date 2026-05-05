@@ -110,8 +110,6 @@ variable "delete_principals" {
 }
 
 
-
-
 #variable for admin principals needed for the other principals
 variable "admin_principals" {
   type = list(string)

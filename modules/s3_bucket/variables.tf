@@ -22,8 +22,6 @@ variable "noncurrent_days" {
   type = number
 }
 
-
-
 variable "transition_to_ia_days" {
   type = number
 }

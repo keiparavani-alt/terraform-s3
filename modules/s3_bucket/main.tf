@@ -62,28 +62,28 @@ resource "aws_s3_bucket_lifecycle_configuration" "lifecycle" {
     }
 
     dynamic "transition" {
-  for_each = var.enable_transition_to_ia ? [1] : []
-  content {
-    days          = var.transition_to_ia_days
-    storage_class = "STANDARD_IA"
-  }
-}
+      for_each = var.enable_transition_to_ia ? [1] : []
+      content {
+        days          = var.transition_to_ia_days
+        storage_class = "STANDARD_IA"
+      }
+    }
 
-dynamic "transition" {
-  for_each = var.enable_transition_to_glacier ? [1] : []
-  content {
-    days          = var.transition_to_glacier_days
-    storage_class = "GLACIER"
-  }
-}
+    dynamic "transition" {
+      for_each = var.enable_transition_to_glacier ? [1] : []
+      content {
+        days          = var.transition_to_glacier_days
+        storage_class = "GLACIER"
+      }
+    }
 
-dynamic "transition" {
-  for_each = var.enable_transition_to_deep_archive ? [1] : []
-  content {
-    days          = var.transition_to_deep_archive_days
-    storage_class = "DEEP_ARCHIVE"
-  }
-}
+    dynamic "transition" {
+      for_each = var.enable_transition_to_deep_archive ? [1] : []
+      content {
+        days          = var.transition_to_deep_archive_days
+        storage_class = "DEEP_ARCHIVE"
+      }
+    }
   }
 }
 #variable for bucket policy

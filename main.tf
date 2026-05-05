@@ -13,12 +13,12 @@ module "s3_bucket" {
 
   enable_bucket_policy = true
 
-  read_principals  = var.read_principals
-  write_principals = var.write_principals
+  read_principals   = var.read_principals
+  write_principals  = var.write_principals
   delete_principals = var.delete_principals
-  admin_principals = var.admin_principals
+  admin_principals  = var.admin_principals
 
-  enable_transition_to_ia            = var.enable_transition_to_ia
-  enable_transition_to_glacier       = var.enable_transition_to_glacier
-  enable_transition_to_deep_archive  = var.enable_transition_to_deep_archive
+  enable_transition_to_ia           = var.enable_transition_to_ia
+  enable_transition_to_glacier      = var.enable_transition_to_glacier
+  enable_transition_to_deep_archive = var.enable_transition_to_deep_archive
 }
